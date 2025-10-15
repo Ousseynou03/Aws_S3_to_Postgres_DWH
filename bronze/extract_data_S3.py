@@ -24,12 +24,22 @@ def list_and_read_csv():
             if file_key.endswith('.csv'):
                 print(f"✅ Fichier CSV trouvé : {file_key}")
                 csv_files[file_key] = None
-                # je veux pour chaque fichier trouver lire les 5 premières lignes
+                # Lire les 5 premières lignes de chaque ficher csv
                 obj_response = s3.get_object(Bucket=bucket_name, Key=file_key)
                 df = pd.read_csv(obj_response['Body'])
-                print(df.head(5))  # Affiche les 5 premières lignes
+                print(df.head(5))
 
     return csv_files
+
+
+def process_data():
+    # Fonction de traitement des données (à implémenter selon les besoins)
+    # ici on a besoin pour chaque csv d'effectuer une insertion dans la bdd postgres
+    
+    pass
+
+
+
 
 # Exécution
 list_and_read_csv()
