@@ -1,28 +1,35 @@
 import boto3
 import pandas as pd
 
-# eu-west-3
-# url s3 -> s3://test-bucket-v1.0.0-386510763288/source_crm/
-
+# Paramètres S3
 bucket_name = 'test-bucket-v1.0.0-386510763288'
-file_key = 'source_crm/*'
+folders = ['source_crm/', 'source_erp/']  # dossiers à parcourir
 
-# Je compte récupérer tous les fichiers csv dans le bucket S3 en fonction de bucket_name et file_key dans un premier temps
-def extrat_data_from_s3():
-    s3 = boto3.client('s3')
-    response = s3.list_objects_v2(Bucket=bucket_name, Prefix='source_crm/')
-    
-    data_frames = []
-    
-    for obj in response.get('Contents', []):
-        file_key = obj['Key']
-        if file_key.endswith('.csv'):
-            obj_response = s3.get_object(Bucket=bucket_name, Key=file_key)
-            df = pd.read_csv(obj_response['Body'])
-            data_frames.append(df)
-    
-    if data_frames:
-        combined_df = pd.concat(data_frames, ignore_index=True)
-        return combined_df
-    else:
-        return pd.DataFrame()
+
+#Lecture et affichages des fichiers depuis AWS S3
+def list_and_read_csv():
+    s3 = boto3.client('s3', region_name='eu-west-3')
+    csv_files = {} # Dictionnaire pour stocker les DataFrames
+
+    for folder in folders:
+        print(f"\n📂 Dossier : {folder}")
+        response = s3.list_objects_v2(Bucket=bucket_name, Prefix=folder)
+
+        if 'Contents' not in response:
+            print(f"Aucun fichier trouvé dans {folder}")
+            continue
+
+        for obj in response['Contents']:
+            file_key = obj['Key']
+            if file_key.endswith('.csv'):
+                print(f"✅ Fichier CSV trouvé : {file_key}")
+                csv_files[file_key] = None
+                # je veux pour chaque fichier trouver lire les 5 premières lignes
+                obj_response = s3.get_object(Bucket=bucket_name, Key=file_key)
+                df = pd.read_csv(obj_response['Body'])
+                print(df.head(5))  # Affiche les 5 premières lignes
+
+    return csv_files
+
+# Exécution
+list_and_read_csv()
