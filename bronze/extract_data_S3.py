@@ -1,18 +1,23 @@
+import os
+from dotenv import load_dotenv
 import boto3
 import pandas as pd
 from sqlalchemy import create_engine
 
+# --- Chargement du fichier .env ---
+load_dotenv()
+
 # --- Paramètres S3 ---
-bucket_name = 'test-bucket-v1.0.0-386510763288'
-folders = ['source_crm/', 'source_erp/']  # Dossiers à parcourir
-region_name = 'eu-west-3'
+bucket_name = os.getenv('BUCKET_NAME')
+folders = ['source_crm/', 'source_erp/']
+region_name = os.getenv('AWS_REGION')
 
 # --- Paramètres PostgreSQL ---
-pg_user = "postgres"
-pg_password = "postgres"
-pg_host = "localhost"
-pg_port = "5434"
-pg_db = "datawarehouse"
+pg_user = os.getenv('PG_USER')
+pg_password = os.getenv('PG_PASSWORD')
+pg_host = os.getenv('PG_HOST')
+pg_port = os.getenv('PG_PORT')
+pg_db = os.getenv('PG_DB')
 
 # --- Connexion PostgreSQL ---
 engine = create_engine(
